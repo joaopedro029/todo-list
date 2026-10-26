@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "..generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  success     Boolean @default(false)
+
+  activity    Activity @relation(fields: [acitivityId], references: [id])
+  acitivityId Int
+}
+
+model Activity {
+  id            Int    @id @default(autoincrement())
+  name          String
+  quantityTasks Int    @default(0)
+
+  tasks Task[]
+}
