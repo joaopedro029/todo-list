@@ -1,18 +1,12 @@
 import express from "express";
-import { prisma } from "../prisma/lib/prisma";
+import { router } from "./routes";
 
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("aoba");
-});
+app.use(express.json());
 
-app.listen(3000, async () => {
-  await prisma.activity.create({
-    data: {
-      name: "teste",
-      quantityTasks: 0,
-    },
-  });
-  console.log("Servidor sojsosj");
+app.use("/app", router);
+
+app.listen(3000, () => {
+  console.log("Servidor rodando");
 });

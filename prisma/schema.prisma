@@ -18,8 +18,8 @@ model Task {
   description String?
   success     Boolean @default(false)
 
-  activity    Activity @relation(fields: [acitivityId], references: [id])
-  acitivityId Int
+  activity   Activity @relation(fields: [activityId], references: [id])
+  activityId Int
 }
 
 model Activity {
