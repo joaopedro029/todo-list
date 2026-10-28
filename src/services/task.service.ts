@@ -1,6 +1,11 @@
 import { prisma } from "../../prisma/lib/prisma";
 import { AppError } from "../error/appError";
-import { taskSchema, typeTaskSchema } from "../schemas/task.schema";
+import {
+  taskSchema,
+  typeTaskSchema,
+  typeUpdateTaskSchema,
+  updateTaskSchema,
+} from "../schemas/task.schema";
 
 export const createTask = async (data: typeTaskSchema) => {
   const validation = taskSchema.safeParse(data);
@@ -78,4 +83,62 @@ export const getTaskById = async (taskId: number) => {
   return task;
 };
 
-//make update e delete task
+export const updateTask = async (
+  taskId: number,
+  data: typeUpdateTaskSchema,
+) => {
+  const existingId = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+    },
+    select: {
+      activityId: true,
+    },
+  });
+
+  if (!existingId) throw new AppError("Id incorreto", 409);
+
+  const validation = updateTaskSchema.safeParse(data);
+
+  if (!validation.success) throw new AppError("Dados inválidos", 409);
+
+  const { name, description, success } = validation.data;
+
+  const { activityId } = existingId;
+
+  if (name) {
+    const duplicatedName = await prisma.task.findFirst({
+      where: {
+        name,
+        activityId,
+      },
+    });
+
+    if (duplicatedName) throw new AppError("Nome duplicado", 409);
+  }
+
+  const dataToUpdate = {
+    ...(name !== undefined && { name: name }),
+    ...(description !== undefined && { description: description }),
+    ...(success !== undefined && { success: success }),
+  };
+
+  return await prisma.task.update({
+    where: { id: taskId },
+    data: dataToUpdate,
+  });
+};
+
+export const deleteTask = async (taskId: number) => {
+  const existingId = await prisma.task.findFirst({
+    where: {
+      id: taskId,
+    },
+  });
+
+  if (!existingId) throw new AppError("Id incorreto", 409);
+
+  return await prisma.task.delete({
+    where: { id: taskId },
+  });
+};

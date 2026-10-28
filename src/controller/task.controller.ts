@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import { AppError } from "../error/appError";
-import { createTask, getTaskById, getTasks } from "../services/task.service";
+import {
+  createTask,
+  deleteTask,
+  getTaskById,
+  getTasks,
+  updateTask,
+} from "../services/task.service";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -49,6 +55,37 @@ export const getById = async (req: Request, res: Response) => {
     if (error instanceof AppError)
       return res.status(error.statusCode).json({ message: error.message });
 
+    return res.status(500).json({ message: "Erro interno no servidor" });
+  }
+};
+
+export const update = async (req: Request, res: Response) => {
+  try {
+    const taskId = Number(req.params.id);
+    const data = req.body;
+    const task = await updateTask(taskId, data);
+    return res
+      .status(200)
+      .json({ message: "Tarefa editada com sucesso", dataUpdated: task });
+  } catch (error) {
+    if (error instanceof AppError)
+      return res.status(error.statusCode).json({ message: error.message });
+
+    return res.status(500).json({ message: "Erro interno no servidor" });
+  }
+};
+
+export const remove = async (req: Request, res: Response) => {
+  try {
+    const taskId = Number(req.params.id);
+
+    await deleteTask(taskId);
+
+    return res.status(200).json({ message: "Tarefa deletada com sucesso" });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AppError)
+      return res.status(error.statusCode).json({ message: error.message });
     return res.status(500).json({ message: "Erro interno no servidor" });
   }
 };

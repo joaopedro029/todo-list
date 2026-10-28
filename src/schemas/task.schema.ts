@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { success } from "zod";
 
 export const taskSchema = z.object({
   name: z.string().min(1).max(50),
@@ -7,3 +7,11 @@ export const taskSchema = z.object({
 });
 
 export type typeTaskSchema = z.infer<typeof taskSchema>;
+
+export const updateTaskSchema = z.object({
+  name: z.string().min(1).max(50).optional(),
+  description: z.string().min(1).max(100).optional(),
+  success: z.boolean().optional(),
+});
+
+export type typeUpdateTaskSchema = z.infer<typeof updateTaskSchema>;
